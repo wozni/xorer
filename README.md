@@ -1,1 +1,2 @@
-To będzie nasze narzędzie do XORowania
+### XORER
+Narzędzie konsolowe do xorowania wartości z wielu różnych źródeł
