@@ -2,4 +2,6 @@
 
 Narzędzie konsolowe do xorowania wartości z wielu zróźnicowanych źródeł
 
-TBD
+Argumenty wejściowe:
+Argumenty wyjściowe:
+Przykład użycia:
