@@ -7,3 +7,5 @@ Argumenty wejściowe:
 Argumenty wyjściowe:
 
 Przykład użycia:
+
+<tutaj będzie przykład użycia>
