@@ -2,4 +2,8 @@
 
 Narzędzie konsolowe do xorowania wartości z wielu zróźnicowanych źródeł
 
-<miejsce na strukturę dokumentu>
+Argumenty wejściowe:
+
+Argumenty wyjściowe:
+
+Przykład użycia:
