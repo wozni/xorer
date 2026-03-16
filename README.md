@@ -13,3 +13,4 @@ Przykład użycia:
 1,2,3,45,
 
 66
+ll
