@@ -1,0 +1,46 @@
+*.swp
+*.*~
+project.lock.json
+auth.json
+.last-run.json
+.DS_Store
+*.pyc
+nupkg/
+artifacts/
+output/
+.sonarqube/
+
+# Visual Studio Code
+.vscode
+
+# User-specific files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+build/
+bld/
+Logs/
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+msbuild.log
+msbuild.err
+msbuild.wrn
+/packages
+/.vs
+/HmsBlazorServerApp/NpmJS/node_modules
+/node_modules
+/Srv.Experiment.Proto.Contracts/node_modules
+/Srv.Experiment.Proto.Contracts/generated
+/src/Gateways/Frontend.Gateway/Logs
+/src/HMS.Portal/HMS.Portal.Service/Logs
+/src/C2/C2.Service/libman.json
