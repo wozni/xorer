@@ -50,11 +50,6 @@ namespace xorer
             int max = Math.Max(binarnaA.Length, binarnaB.Length);
             string[] wynik = new string[max];
  
-            for (int i = 0; i < args.Length; i++)
-            {
-                Console.WriteLine(args[i]);
-            }
- 
             XOR(max, wynik, binarnaA, binarnaB);
  
             string wynikString = string.Join("", wynik);
@@ -103,4 +98,3 @@ namespace xorer
         }
     }
 }
- 
