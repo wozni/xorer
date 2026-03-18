@@ -22,15 +22,31 @@ namespace xorer
  
             if (args[0] == "-inputKeyA" && args[2] == "-inputKeyB")
             {
-                kluczA = Encoding.ASCII.GetBytes(args[1]);
-                kluczB = Encoding.ASCII.GetBytes(args[3]);
+                try
+                {
+                    kluczA = Convert.FromBase64String(args[1]);
+                    kluczB = Convert.FromBase64String(args[3]);
+                }
+                catch
+                {
+                    Console.WriteLine("Długość kluczy nie jest podzielna przez 4!");
+                    return;
+                }
             }
             else if (args[0] == "-inputFileA" && args[2] == "-inputFileB")
             {
                 try
                 {
-                    kluczA = File.ReadAllBytes(args[1]);
-                    kluczB = File.ReadAllBytes(args[3]);
+                    try
+                    {
+                        kluczA = Convert.FromBase64String(File.ReadAllText(args[1]));
+                        kluczB = Convert.FromBase64String(File.ReadAllText(args[3]));
+                    }
+                    catch
+                    {
+                        Console.WriteLine("Długość kluczy nie jest podzielna przez 4!");
+                        return;
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -50,10 +66,9 @@ namespace xorer
                 return;
             }
  
-            byte[] xor1 = XOR(kluczA, kluczB);
-            byte[] xor2 = XOR(xor1, kluczB);
+            byte[] xor = XOR(kluczA, kluczB);
  
-            string wynikString = Encoding.ASCII.GetString(xor2);
+            string wynikString = Convert.ToBase64String(xor);
  
             if (args.Length == 4)
             {
@@ -89,4 +104,3 @@ namespace xorer
         }
     }
 }
- 
