@@ -17,20 +17,20 @@ namespace xorer
                 return;
             }
  
-            string kluczA = "";
-            string kluczB = "";
+            byte[] kluczA;
+            byte[] kluczB;
  
             if (args[0] == "-inputKeyA" && args[2] == "-inputKeyB")
             {
-                kluczA = args[1];
-                kluczB = args[3];
+                kluczA = Encoding.ASCII.GetBytes(args[1]);
+                kluczB = Encoding.ASCII.GetBytes(args[3]);
             }
             else if (args[0] == "-inputFileA" && args[2] == "-inputFileB")
             {
                 try
                 {
-                    kluczA = File.ReadAllText(args[1]);
-                    kluczB = File.ReadAllText(args[3]);
+                    kluczA = File.ReadAllBytes(args[1]);
+                    kluczB = File.ReadAllBytes(args[3]);
                 }
                 catch (Exception ex)
                 {
@@ -44,15 +44,16 @@ namespace xorer
                 return;
             }
  
-            string binarnaA = BityNaBinarne(Encoding.ASCII.GetBytes(kluczA));
-            string binarnaB = BityNaBinarne(Encoding.ASCII.GetBytes(kluczB));
+            if (kluczA.Length != kluczB.Length)
+            {
+                Console.WriteLine("Błąd: długości wejść nie są równe!");
+                return;
+            }
  
-            int max = Math.Max(binarnaA.Length, binarnaB.Length);
-            string[] wynik = new string[max];
+            byte[] xor1 = XOR(kluczA, kluczB);
+            byte[] xor2 = XOR(xor1, kluczB);
  
-            XOR(max, wynik, binarnaA, binarnaB);
- 
-            string wynikString = string.Join("", wynik);
+            string wynikString = Encoding.ASCII.GetString(xor2);
  
             if (args.Length == 4)
             {
@@ -74,27 +75,18 @@ namespace xorer
             }
         }
  
-        static string BityNaBinarne(byte[] bity)
+        static byte[] XOR(byte[] a, byte[] b)
         {
-            string wynik = "";
+            int len = a.Length;
+            byte[] wynik = new byte[len];
  
-            foreach (byte b in bity)
+            for (int i = 0; i < len; i++)
             {
-                wynik += Convert.ToString(b, 2).PadLeft(8, '0');
+                wynik[i] = (byte)(a[i] ^ b[i]);
             }
  
             return wynik;
         }
- 
-        static void XOR(int max, string[] wynik, string binarnaA, string binarnaB)
-        {
-            binarnaA = binarnaA.PadLeft(max, '0');
-            binarnaB = binarnaB.PadLeft(max, '0');
- 
-            for (int i = 0; i < max; i++)
-            {
-                wynik[i] = (binarnaA[i] == binarnaB[i]) ? "0" : "1";
-            }
-        }
     }
 }
+ 
