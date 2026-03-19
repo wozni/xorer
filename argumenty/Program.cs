@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace xorer
@@ -7,7 +8,14 @@ namespace xorer
     {
         static void Main(string[] args)
         {
-            if (args.Length != 4 && args.Length != 6)
+            var dict = ParseArgs(args);
+
+            bool hasKeyA = dict.ContainsKey("-inputKeyA");
+            bool hasKeyB = dict.ContainsKey("-inputKeyB");
+            bool hasFileA = dict.ContainsKey("-inputFileA");
+            bool hasFileB = dict.ContainsKey("-inputFileB");
+
+            if (!((hasKeyA && hasKeyB) || (hasFileA && hasFileB)))
             {
                 Console.WriteLine("Invalid usage!");
                 Console.WriteLine("Variant 1: dotnet run -inputKeyA A -inputKeyB B");
@@ -15,27 +23,23 @@ namespace xorer
                 Console.WriteLine("Variant 3: dotnet run -inputFileA A.txt -inputFileB B.txt -outputFile F.txt");
                 return;
             }
-
-            byte[] keyA = new byte[args[1].Length];
-            byte[] keyB = new byte[args[3].Length];
-
-            if (args[0] == "-inputKeyA" && args[2] == "-inputKeyB")
+            
+            byte[] keyA = Array.Empty<byte>();
+            byte[] keyB = Array.Empty<byte>();
+            
+            if (hasKeyA && hasKeyB)
             {
-                string argA = args[1];
-                string argB = args[3];
+                string argA = dict["-inputKeyA"];
+                string argB = dict["-inputKeyB"];
 
                 bool aRandom = argA == "-random";
                 bool bRandom = argB == "-random";
 
                 if (!aRandom)
-                {
                     keyA = Convert.FromBase64String(argA);
-                }
 
                 if (!bRandom)
-                {
                     keyB = Convert.FromBase64String(argB);
-                }
 
                 if (aRandom && bRandom)
                 {
@@ -51,23 +55,18 @@ namespace xorer
                     keyB = GenerateRandomKeyBytes(keyA.Length);
                 }
             }
-            else if (args[0] == "-inputFileA" && args[2] == "-inputFileB")
+            else
             {
                 try
                 {
-                    keyA = Convert.FromBase64String(File.ReadAllText(args[1]));
-                    keyB = Convert.FromBase64String(File.ReadAllText(args[3]));
+                    keyA = Convert.FromBase64String(File.ReadAllText(dict["-inputFileA"]));
+                    keyB = Convert.FromBase64String(File.ReadAllText(dict["-inputFileB"]));
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine($"File read error: {ex.Message}");
                     return;
                 }
-            }
-            else
-            {
-                Console.WriteLine("Invalid arguments! Use -inputKeyA/-inputKeyB or -inputFileA/-inputFileB!");
-                return;
             }
 
             if (keyA.Length != keyB.Length)
@@ -79,24 +78,37 @@ namespace xorer
             byte[] xor = XOR(keyA, keyB);
             string resultString = Convert.ToBase64String(xor);
 
-            if (args.Length == 4)
+            if (dict.TryGetValue("-outputFile", out string? outputPath) && outputPath is not null)
             {
-                Console.WriteLine(resultString);
-            }
-            else if (args.Length == 6)
-            {
-                string path = args[5];
-
                 try
                 {
-                    File.WriteAllText(path, resultString);
-                    Console.WriteLine($"Result saved to file: {path}");
+                    File.WriteAllText(outputPath, resultString);
+                    Console.WriteLine($"Result saved to file: {outputPath}");
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine($"File write error: {ex.Message}");
                 }
             }
+            else
+            {
+                Console.WriteLine(resultString);
+            }
+        }
+
+        static Dictionary<string, string> ParseArgs(string[] args)
+        {
+            var dict = new Dictionary<string, string>();
+
+            for (int i = 0; i < args.Length - 1; i++)
+            {
+                if (args[i].StartsWith("-"))
+                {
+                    dict[args[i]] = args[i + 1];
+                }
+            }
+
+            return dict;
         }
 
         static byte[] GenerateRandomKeyBytes(int byteLength)
