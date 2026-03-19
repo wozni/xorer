@@ -10,63 +10,67 @@ namespace xorer
         {
             var dict = ParseArgs(args);
 
-            bool hasKeyA = dict.ContainsKey("-inputKeyA");
-            bool hasKeyB = dict.ContainsKey("-inputKeyB");
-            bool hasFileA = dict.ContainsKey("-inputFileA");
-            bool hasFileB = dict.ContainsKey("-inputFileB");
+            byte[] keyA;
+            byte[] keyB;
 
-            if (!((hasKeyA && hasKeyB) || (hasFileA && hasFileB)))
-            {
-                Console.WriteLine("Invalid usage!");
-                Console.WriteLine("Variant 1: dotnet run -inputKeyA A -inputKeyB B");
-                Console.WriteLine("Variant 2: dotnet run -inputKeyA A -inputKeyB B -outputFile F.txt");
-                Console.WriteLine("Variant 3: dotnet run -inputFileA A.txt -inputFileB B.txt -outputFile F.txt");
-                return;
-            }
-            
-            byte[] keyA = Array.Empty<byte>();
-            byte[] keyB = Array.Empty<byte>();
-            
-            if (hasKeyA && hasKeyB)
+            if (dict.ContainsKey("-inputKeyA")) // Sprawdza czy inputy istnieją i generuje lub pobiera w zależności od tego czy jest -random
             {
                 string argA = dict["-inputKeyA"];
-                string argB = dict["-inputKeyB"];
-
-                bool aRandom = argA == "-random";
-                bool bRandom = argB == "-random";
-
-                if (!aRandom)
-                    keyA = Convert.FromBase64String(argA);
-
-                if (!bRandom)
-                    keyB = Convert.FromBase64String(argB);
-
-                if (aRandom && bRandom)
+                if (argA == "-random")
                 {
                     keyA = GenerateRandomKeyBytes(64);
-                    keyB = GenerateRandomKeyBytes(64);
                 }
-                else if (aRandom)
+                else
                 {
-                    keyA = GenerateRandomKeyBytes(keyB.Length);
-                }
-                else if (bRandom)
-                {
-                    keyB = GenerateRandomKeyBytes(keyA.Length);
+                    keyA = Convert.FromBase64String(argA);
                 }
             }
-            else
+            else if (dict.ContainsKey("-inputFileA"))
             {
                 try
                 {
                     keyA = Convert.FromBase64String(File.ReadAllText(dict["-inputFileA"]));
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"File A read error: {ex.Message}");
+                    return;
+                }
+            }
+            else
+            {
+                Console.WriteLine("Missing A: provide -inputKeyA or -inputFileA");
+                return;
+            }
+
+            if (dict.ContainsKey("-inputKeyB"))
+            {
+                string argB = dict["-inputKeyB"];
+                if (argB == "-random")
+                {
+                    keyB = GenerateRandomKeyBytes(keyA.Length);
+                }
+                else
+                {
+                    keyB = Convert.FromBase64String(argB);
+                }
+            }
+            else if (dict.ContainsKey("-inputFileB"))
+            {
+                try
+                {
                     keyB = Convert.FromBase64String(File.ReadAllText(dict["-inputFileB"]));
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"File read error: {ex.Message}");
+                    Console.WriteLine($"File B read error: {ex.Message}");
                     return;
                 }
+            }
+            else
+            {
+                Console.WriteLine("Missing B: provide -inputKeyB or -inputFileB");
+                return;
             }
 
             if (keyA.Length != keyB.Length)
@@ -75,9 +79,10 @@ namespace xorer
                 return;
             }
 
-            byte[] xor = XOR(keyA, keyB);
+            byte[] xor = XOR(keyA, keyB); // Wykonuje funkcję XOR z wcześniej podanymi/wygenerowanymi kluczami
             string resultString = Convert.ToBase64String(xor);
 
+            // Sprawdza czy jest -outputFile i zapisuje rezultat w podanym pliku
             if (dict.TryGetValue("-outputFile", out string? outputPath) && outputPath is not null)
             {
                 try
@@ -96,7 +101,7 @@ namespace xorer
             }
         }
 
-        static Dictionary<string, string> ParseArgs(string[] args)
+        static Dictionary<string, string> ParseArgs(string[] args) // Tworzy słownik z argumentami 
         {
             var dict = new Dictionary<string, string>();
 
@@ -111,7 +116,7 @@ namespace xorer
             return dict;
         }
 
-        static byte[] GenerateRandomKeyBytes(int byteLength)
+        static byte[] GenerateRandomKeyBytes(int byteLength) // Generuje losowy pasujący klucz i zwraca rezultat
         {
             byte[] randomBytes = new byte[byteLength];
             Random random = new Random();
@@ -120,7 +125,7 @@ namespace xorer
             return randomBytes;
         }
 
-        static byte[] XOR(byte[] a, byte[] b)
+        static byte[] XOR(byte[] a, byte[] b) // XOR-uje podane klucze i zwraca rezultat
         {
             int len = a.Length;
             byte[] result = new byte[len];
