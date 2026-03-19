@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Text;
 using System.IO;
- 
+
 namespace xorer
 {
     internal class Program
@@ -10,97 +9,114 @@ namespace xorer
         {
             if (args.Length != 4 && args.Length != 6)
             {
-                Console.WriteLine("Niepoprawne użycie!");
-                Console.WriteLine("Wariant 1: xorer -inputKeyA A -inputKeyB B");
-                Console.WriteLine("Wariant 2: xorer -inputKeyA A -inputKeyB B -outputFile F.txt");
-                Console.WriteLine("Wariant 3: xorer -inputFileA A.txt -inputFileB B.txt -outputFile F.txt");
+                Console.WriteLine("Invalid usage!");
+                Console.WriteLine("Variant 1: dotnet run -inputKeyA A -inputKeyB B");
+                Console.WriteLine("Variant 2: dotnet run -inputKeyA A -inputKeyB B -outputFile F.txt");
+                Console.WriteLine("Variant 3: dotnet run -inputFileA A.txt -inputFileB B.txt -outputFile F.txt");
                 return;
             }
- 
-            byte[] kluczA;
-            byte[] kluczB;
- 
+
+            byte[] keyA = new byte[args[1].Length];
+            byte[] keyB = new byte[args[3].Length];
+
             if (args[0] == "-inputKeyA" && args[2] == "-inputKeyB")
             {
-                try
+                string argA = args[1];
+                string argB = args[3];
+
+                bool aRandom = argA == "-random";
+                bool bRandom = argB == "-random";
+
+                if (!aRandom)
                 {
-                    kluczA = Convert.FromBase64String(args[1]);
-                    kluczB = Convert.FromBase64String(args[3]);
+                    keyA = Convert.FromBase64String(argA);
                 }
-                catch
+
+                if (!bRandom)
                 {
-                    Console.WriteLine("Długość kluczy nie jest podzielna przez 4!");
-                    return;
+                    keyB = Convert.FromBase64String(argB);
+                }
+
+                if (aRandom && bRandom)
+                {
+                    keyA = GenerateRandomKeyBytes(64);
+                    keyB = GenerateRandomKeyBytes(64);
+                }
+                else if (aRandom)
+                {
+                    keyA = GenerateRandomKeyBytes(keyB.Length);
+                }
+                else if (bRandom)
+                {
+                    keyB = GenerateRandomKeyBytes(keyA.Length);
                 }
             }
             else if (args[0] == "-inputFileA" && args[2] == "-inputFileB")
             {
                 try
                 {
-                    try
-                    {
-                        kluczA = Convert.FromBase64String(File.ReadAllText(args[1]));
-                        kluczB = Convert.FromBase64String(File.ReadAllText(args[3]));
-                    }
-                    catch
-                    {
-                        Console.WriteLine("Długość kluczy nie jest podzielna przez 4!");
-                        return;
-                    }
+                    keyA = Convert.FromBase64String(File.ReadAllText(args[1]));
+                    keyB = Convert.FromBase64String(File.ReadAllText(args[3]));
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Błąd odczytu pliku: {ex.Message}");
+                    Console.WriteLine($"File read error: {ex.Message}");
                     return;
                 }
             }
             else
             {
-                Console.WriteLine("Niepoprawne argumenty! Użyj -inputKeyA/-inputKeyB lub -inputFileA/-inputFileB!");
+                Console.WriteLine("Invalid arguments! Use -inputKeyA/-inputKeyB or -inputFileA/-inputFileB!");
                 return;
             }
- 
-            if (kluczA.Length != kluczB.Length)
+
+            if (keyA.Length != keyB.Length)
             {
-                Console.WriteLine("Błąd: długości wejść nie są równe!");
+                Console.WriteLine("Error: Input lengths are not equal!");
                 return;
             }
- 
-            byte[] xor = XOR(kluczA, kluczB);
- 
-            string wynikString = Convert.ToBase64String(xor);
- 
+
+            byte[] xor = XOR(keyA, keyB);
+            string resultString = Convert.ToBase64String(xor);
+
             if (args.Length == 4)
             {
-                Console.WriteLine(wynikString);
+                Console.WriteLine(resultString);
             }
             else if (args.Length == 6)
             {
-                string sciezka = args[5];
- 
+                string path = args[5];
+
                 try
                 {
-                    File.WriteAllText(sciezka, wynikString);
-                    Console.WriteLine($"Wynik zapisano do pliku: {sciezka}");
+                    File.WriteAllText(path, resultString);
+                    Console.WriteLine($"Result saved to file: {path}");
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Błąd zapisu do pliku: {ex.Message}");
+                    Console.WriteLine($"File write error: {ex.Message}");
                 }
             }
         }
- 
+
+        static byte[] GenerateRandomKeyBytes(int byteLength)
+        {
+            byte[] randomBytes = new byte[byteLength];
+            Random random = new Random();
+            random.NextBytes(randomBytes);
+            Console.WriteLine($"Generated key used for XOR: {Convert.ToBase64String(randomBytes)}");
+            return randomBytes;
+        }
+
         static byte[] XOR(byte[] a, byte[] b)
         {
             int len = a.Length;
-            byte[] wynik = new byte[len];
- 
+            byte[] result = new byte[len];
+
             for (int i = 0; i < len; i++)
-            {
-                wynik[i] = (byte)(a[i] ^ b[i]);
-            }
- 
-            return wynik;
+                result[i] = (byte)(a[i] ^ b[i]);
+
+            return result;
         }
     }
 }
