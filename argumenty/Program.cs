@@ -1,139 +1,93 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-
+﻿using System.CommandLine;
+ 
 namespace xorer
 {
     internal class Program
     {
-        static void Main(string[] args)
+        static int Main(string[] args)
         {
-            var dict = ParseArgs(args);
-
-            byte[] keyA;
-            byte[] keyB;
-
-            if (dict.ContainsKey("-inputKeyA")) // Sprawdza czy inputy istnieją i generuje lub pobiera w zależności od tego czy jest -random
+            var keyAOption = new Option<string?>("-inputKeyA");
+            var keyAFileOption = new Option<FileInfo?>("-inputFileA");
+            var keyBOption = new Option<string?>("-inputKeyB");
+            var keyBFileOption = new Option<FileInfo?>("-inputFileB");
+            var outputOption = new Option<FileInfo?>("-outputFile");
+ 
+            var root = new RootCommand("XOR Tool for Base64 keys") {keyAOption, keyAFileOption,keyBOption, keyBFileOption,outputOption};
+ 
+            root.SetAction(parseResult =>
             {
-                string argA = dict["-inputKeyA"];
-                if (argA == "-random")
-                {
-                    keyA = GenerateRandomKeyBytes(64);
-                }
-                else
-                {
-                    keyA = Convert.FromBase64String(argA);
-                }
-            }
-            else if (dict.ContainsKey("-inputFileA"))
-            {
+                var keyAArg = parseResult.GetValue(keyAOption);
+                var keyAFile = parseResult.GetValue(keyAFileOption);
+                var keyBArg = parseResult.GetValue(keyBOption);
+                var keyBFile = parseResult.GetValue(keyBFileOption);
+                var output = parseResult.GetValue(outputOption);
+ 
                 try
                 {
-                    keyA = Convert.FromBase64String(File.ReadAllText(dict["-inputFileA"]));
+                    BuildKey(keyAArg, keyAFile, keyBArg, keyBFile, output);
+                    return 0;
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"File A read error: {ex.Message}");
-                    return;
+                    Console.Error.WriteLine($"Error: {ex.Message}");
+                    return 1;
                 }
-            }
-            else
-            {
-                Console.WriteLine("Missing A: provide -inputKeyA or -inputFileA");
-                return;
-            }
-
-            if (dict.ContainsKey("-inputKeyB"))
-            {
-                string argB = dict["-inputKeyB"];
-                if (argB == "-random")
-                {
-                    keyB = GenerateRandomKeyBytes(keyA.Length);
-                }
-                else
-                {
-                    keyB = Convert.FromBase64String(argB);
-                }
-            }
-            else if (dict.ContainsKey("-inputFileB"))
-            {
-                try
-                {
-                    keyB = Convert.FromBase64String(File.ReadAllText(dict["-inputFileB"]));
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"File B read error: {ex.Message}");
-                    return;
-                }
-            }
-            else
-            {
-                Console.WriteLine("Missing B: provide -inputKeyB or -inputFileB");
-                return;
-            }
-
+            });
+ 
+            return root.Parse(args).Invoke();
+        }
+ 
+        static void BuildKey(string? keyAArg, FileInfo? keyAFile, string? keyBArg, FileInfo? keyBFile, FileInfo? outputFile)
+        {
+            byte[] keyA = LoadKey(keyAArg, keyAFile, 64);
+            byte[] keyB = LoadKey(keyBArg, keyBFile, keyA.Length);
+ 
             if (keyA.Length != keyB.Length)
+                throw new Exception("Input lengths are not equal!");
+ 
+            byte[] xor = XOR(keyA, keyB);
+            string result = Convert.ToBase64String(xor);
+ 
+            if (outputFile != null)
             {
-                Console.WriteLine("Error: Input lengths are not equal!");
-                return;
-            }
-
-            byte[] xor = XOR(keyA, keyB); // Wykonuje funkcję XOR z wcześniej podanymi/wygenerowanymi kluczami
-            string resultString = Convert.ToBase64String(xor);
-
-            // Sprawdza czy jest -outputFile i zapisuje rezultat w podanym pliku
-            if (dict.TryGetValue("-outputFile", out string? outputPath) && outputPath is not null)
-            {
-                try
-                {
-                    File.WriteAllText(outputPath, resultString);
-                    Console.WriteLine($"Result saved to file: {outputPath}");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"File write error: {ex.Message}");
-                }
+                File.WriteAllText(outputFile.FullName, result);
+                Console.WriteLine($"Saved to {outputFile.FullName}");
             }
             else
             {
-                Console.WriteLine(resultString);
+                Console.WriteLine(result);
             }
         }
-
-        static Dictionary<string, string> ParseArgs(string[] args) // Tworzy słownik z argumentami 
+ 
+        static byte[] LoadKey(string? arg, FileInfo? file, int len)
         {
-            var dict = new Dictionary<string, string>();
-
-            for (int i = 0; i < args.Length - 1; i++)
-            {
-                if (args[i].StartsWith("-"))
-                {
-                    dict[args[i]] = args[i + 1];
-                }
-            }
-
-            return dict;
+            if (arg == "-random")
+                return GenerateRandomKeyBytes(len);
+ 
+            if (arg != null)
+                return Convert.FromBase64String(arg);
+ 
+            if (file != null)
+                return Convert.FromBase64String(File.ReadAllText(file.FullName));
+ 
+            throw new Exception("Missing key input!");
         }
-
-        static byte[] GenerateRandomKeyBytes(int byteLength) // Generuje losowy pasujący klucz i zwraca rezultat
+ 
+        static byte[] GenerateRandomKeyBytes(int len)
         {
-            byte[] randomBytes = new byte[byteLength];
-            Random random = new Random();
-            random.NextBytes(randomBytes);
-            Console.WriteLine($"Generated key used for XOR: {Convert.ToBase64String(randomBytes)}");
-            return randomBytes;
+            var bytes = new byte[len];
+            new Random().NextBytes(bytes);
+            Console.WriteLine($"Generated random key: {Convert.ToBase64String(bytes)}");
+            return bytes;
         }
-
-        static byte[] XOR(byte[] a, byte[] b) // XOR-uje podane klucze i zwraca rezultat
+ 
+        static byte[] XOR(byte[] a, byte[] b)
         {
-            int len = a.Length;
-            byte[] result = new byte[len];
-
-            for (int i = 0; i < len; i++)
+            var result = new byte[a.Length];
+            for (int i = 0; i < a.Length; i++)
                 result[i] = (byte)(a[i] ^ b[i]);
-
             return result;
         }
     }
 }
+ 
