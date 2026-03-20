@@ -1,53 +1,53 @@
-﻿using System.CommandLine;
- 
-namespace xorer
+﻿namespace xorer
 {
     internal class Program
     {
         static int Main(string[] args)
         {
-            var keyAOption = new Option<string?>("-inputKeyA");
-            var keyAFileOption = new Option<FileInfo?>("-inputFileA");
-            var keyBOption = new Option<string?>("-inputKeyB");
-            var keyBFileOption = new Option<FileInfo?>("-inputFileB");
-            var outputOption = new Option<FileInfo?>("-outputFile");
- 
-            var root = new RootCommand("XOR Tool for Base64 keys") {keyAOption, keyAFileOption,keyBOption, keyBFileOption,outputOption};
- 
-            root.SetAction(parseResult =>
+            Console.WriteLine("----- XOR Tool for Base64 keys -----");
+
+            try
             {
-                var keyAArg = parseResult.GetValue(keyAOption);
-                var keyAFile = parseResult.GetValue(keyAFileOption);
-                var keyBArg = parseResult.GetValue(keyBOption);
-                var keyBFile = parseResult.GetValue(keyBFileOption);
-                var output = parseResult.GetValue(outputOption);
- 
-                try
-                {
-                    BuildKey(keyAArg, keyAFile, keyBArg, keyBFile, output);
-                    return 0;
-                }
-                catch (Exception ex)
-                {
-                    Console.Error.WriteLine($"Error: {ex.Message}");
-                    return 1;
-                }
-            });
- 
-            return root.Parse(args).Invoke();
+                Console.Write("Key A (Base64 or -random): ");
+                string? keyAArg = Console.ReadLine();
+
+                Console.Write("Key A file path (ENTER to skip): ");
+                string? keyAFilePath = Console.ReadLine();
+                FileInfo? keyAFile = string.IsNullOrWhiteSpace(keyAFilePath) ? null : new FileInfo(keyAFilePath);
+
+                Console.Write("Key B (Base64 or -random): ");
+                string? keyBArg = Console.ReadLine();
+
+                Console.Write("Key B file path (ENTER to skip): ");
+                string? keyBFilePath = Console.ReadLine();
+                FileInfo? keyBFile = string.IsNullOrWhiteSpace(keyBFilePath) ? null : new FileInfo(keyBFilePath);
+
+                Console.Write("Output file path (ENTER to print to console): ");
+                string? outputPath = Console.ReadLine();
+                FileInfo? outputFile = string.IsNullOrWhiteSpace(outputPath) ? null : new FileInfo(outputPath);
+
+                BuildKey(keyAArg, keyAFile, keyBArg, keyBFile, outputFile);
+                Console.ReadKey();
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"Error: {ex.Message}");
+                return 1;
+            }
         }
- 
+
         static void BuildKey(string? keyAArg, FileInfo? keyAFile, string? keyBArg, FileInfo? keyBFile, FileInfo? outputFile)
         {
             byte[] keyA = LoadKey(keyAArg, keyAFile, 64);
             byte[] keyB = LoadKey(keyBArg, keyBFile, keyA.Length);
- 
+
             if (keyA.Length != keyB.Length)
                 throw new Exception("Input lengths are not equal!");
- 
+
             byte[] xor = XOR(keyA, keyB);
             string result = Convert.ToBase64String(xor);
- 
+
             if (outputFile != null)
             {
                 File.WriteAllText(outputFile.FullName, result);
@@ -55,24 +55,25 @@ namespace xorer
             }
             else
             {
+                Console.WriteLine("Result:");
                 Console.WriteLine(result);
             }
         }
- 
+
         static byte[] LoadKey(string? arg, FileInfo? file, int len)
         {
             if (arg == "-random")
                 return GenerateRandomKeyBytes(len);
- 
-            if (arg != null)
+
+            if (!string.IsNullOrWhiteSpace(arg))
                 return Convert.FromBase64String(arg);
- 
+
             if (file != null)
                 return Convert.FromBase64String(File.ReadAllText(file.FullName));
- 
+
             throw new Exception("Missing key input!");
         }
- 
+
         static byte[] GenerateRandomKeyBytes(int len)
         {
             var bytes = new byte[len];
@@ -80,7 +81,7 @@ namespace xorer
             Console.WriteLine($"Generated random key: {Convert.ToBase64String(bytes)}");
             return bytes;
         }
- 
+
         static byte[] XOR(byte[] a, byte[] b)
         {
             var result = new byte[a.Length];
@@ -90,4 +91,3 @@ namespace xorer
         }
     }
 }
- 
