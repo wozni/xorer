@@ -1,11 +1,17 @@
 ### XORER
 
-Narzędzie konsolowe do xorowania wartości z wielu zróźnicowanych źródeł
+Console Tool to XOR values from different sources
 
-Argumenty wejściowe:
+## Input Arguments:
 
-Argumenty wyjściowe:
+- inputKeyA ( Base64 / file path / -random:(bytes) )
+- inputKeyB ( Base64 / file path / -random )
+- outputFile ( File path )
 
-Przykład użycia:
+## Output Arguments:
 
-<tutaj będzie przykład użycia>
+- 
+
+## Example:
+
+- 

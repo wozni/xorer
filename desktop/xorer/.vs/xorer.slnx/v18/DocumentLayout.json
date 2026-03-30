@@ -1,0 +1,50 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\praktyki\\source\\repos\\xorer\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{83D2E97C-DC34-09FB-DFE4-4F40B4F523F8}|xorer\\xorer.csproj|c:\\users\\praktyki\\source\\repos\\xorer\\xorer\\mainpage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{83D2E97C-DC34-09FB-DFE4-4F40B4F523F8}|xorer\\xorer.csproj|solutionrelative:xorer\\mainpage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 3,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{eefa5220-e298-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{e78e0cf7-2e4e-48a7-bf7f-a94d9330a3be}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "MainPage.xaml.cs",
+              "DocumentMoniker": "C:\\Users\\praktyki\\source\\repos\\xorer\\xorer\\MainPage.xaml.cs",
+              "RelativeDocumentMoniker": "xorer\\MainPage.xaml.cs",
+              "ToolTip": "C:\\Users\\praktyki\\source\\repos\\xorer\\xorer\\MainPage.xaml.cs",
+              "RelativeToolTip": "xorer\\MainPage.xaml.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAWAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "OverriddenGroupName": "xorer",
+              "WhenOpened": "2026-03-27T09:51:02.439Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
