@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="xorer.MainPage"
+             >
+
+    <ScrollView>
+        
+        <VerticalStackLayout
+            Padding="30,0"
+            Spacing="3">
+            
+            <Label x:Name="labelA" Text="Key A: " FontSize="Small"></Label>
+            <Grid ColumnDefinitions="*, Auto, Auto, Auto" >
+                <Entry x:Name="inputKeyA" Placeholder="Enter Key A" BackgroundColor="LightGray" TextColor="Black" PlaceholderColor="DarkGray" Grid.Column="0" IsPassword="true" TextChanged="inputKeyA_TextChanged"></Entry>
+                <Button x:Name ="showKeyA" Text="Show" Grid.Column="1" Margin="5,0,0,0" BackgroundColor="Orange" Clicked="showKeyA_Clicked"></Button>
+                <Button x:Name="openFromFileA" Text="Open From File" Grid.Column="2" Margin="5,0,0,0" BackgroundColor="Orange" Clicked="openFromFileA_Clicked"></Button>
+            </Grid>
+            <Label x:Name="labelB" Text="Key B: " FontSize="Small"></Label>
+            <Grid ColumnDefinitions="*, Auto, Auto" >
+                <Entry x:Name="inputKeyB" Placeholder="Enter Key B" BackgroundColor="LightGray" TextColor="Black" PlaceholderColor="DarkGray" Grid.Column="0" IsPassword="true" TextChanged="inputKeyB_TextChanged"></Entry>
+                <Button x:Name ="showKeyB" Text="Show" Grid.Column="1" Margin="5,0,0,0" BackgroundColor="Orange" Clicked="showKeyB_Clicked"></Button>
+                <Button x:Name ="openFromFileB" Text="Open From File" Grid.Column="2" Margin="5,0,0,0" BackgroundColor="Orange" Clicked="openFromFileB_Clicked"></Button>
+            </Grid>
+            <HorizontalStackLayout>
+                <Button x:Name="generateKey" Text="Generate Key" HorizontalOptions="Start" Margin="0,5,0,5" BackgroundColor="Orange" Clicked="generateKey_Clicked"></Button>
+                <Button x:Name="randomButton" Text="Random" Margin="5,5,0,5" BackgroundColor="Orange" Clicked="randomButton_Clicked"></Button>
+            </HorizontalStackLayout>
+            <Label Text="Result:" FontSize="Small"></Label>
+            <Grid ColumnDefinitions="*, Auto, Auto" >
+                <Entry x:Name ="resultEntry" Placeholder="Result" BackgroundColor="LightYellow" TextColor="Black" PlaceholderColor="DarkGray" IsReadOnly="True" Grid.Column="0" IsPassword="true"></Entry>
+                <Button x:Name="showResult" Text="Show" Grid.Column="1" Margin="5,0,0,0" BackgroundColor="Orange" Clicked="showResult_Clicked"></Button>
+                <Button x:Name="copyTextButton" Text="Copy Text" Grid.Column="2" Margin="5,0,0,0" BackgroundColor="Orange" Clicked="copyTextButton_Clicked"></Button>
+            </Grid>
+            <Button x:Name="saveToFileButton" Text="Save To File" HorizontalOptions="Start" Margin="0,5,5,0" BackgroundColor="Orange" Clicked="saveToFileButton_Clicked"></Button>
+            <Label x:Name="alertLabel" Text="Test" FontSize="Small" IsVisible="False"></Label>
+        </VerticalStackLayout>
+        
+    </ScrollView>
+
+</ContentPage>
